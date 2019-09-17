@@ -1,0 +1,104 @@
+---
+title: "04_assignment_bukva"
+output: html_document
+---
+#ASSIGNMENT 4 - CLEANING UP AND SAVING DATASETS
+For this assignmenT, we will use R to do the following tasks:
+
+    1. Panel data for OECD countries. Save as file name oecd.RData http://www.wiley.com/legacy/wileychi/baltagi/supp/Gasoline.dat
+    2. U.S. National Election Survey data from 2004. Save as file name nes.RData. http://www.uta.edu/faculty/story/DataSets.htm
+    3. General social survey, student version. Save as file name gss.Rdata. http://www.uta.edu/faculty/story/DataSets.htm
+    4. Replication file for “STATISTICAL DISCRIMINATION OR PREJUDICE? A LARGE SAMPLE FIELD EXPERIMENT”. Open up and save the mainData.csv file. Save it as maindata.RData. Available here, look under the “Data and Analysis” tab.
+    5. The Lalonde dataset, covering work experiences in the Panel Study of Income Dynamics (psid). Save as psid.RData http://users.nber.org/ ~rdehejia/data/psid_controls.txt You’ll find a description of the data that you’ll need here.
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(haven)
+library(readxl)
+library(readr)
+```
+
+##PART 1 - Panel data for OECD countries. Save as file name oecd.RData
+
+For this question we will use the read.delim function to save a delimited dataset into Rstudio and be able to work with it.  This allows for us to see that to see the 342 observations made in this data set. After verifying that the data loaded, we save the file as an R data file.
+
+```{r}
+oecd<-read.delim(file="http://www.wiley.com/legacy/wileychi/baltagi/supp/Gasoline.dat",header=TRUE,dec = " ")
+
+read_delim(file="http://www.wiley.com/legacy/wileychi/baltagi/supp/Gasoline.dat",delim = " ")
+
+head(oecd)
+
+save(oecd,file="oecd.Rdata")
+```
+
+##PART 2 - U.S. National Election Survey data from 2004. Save as file name nes.RData.
+
+Since this file is a ".sav" file, we know that it is an SPSS formatted file and we will need to use the read_spss command to work with this file.  Once we verify this file opens correctly, we again save the file as an R data file.
+
+```{r}
+#SPSS
+nes<-read_spss("http://www.uta.edu/faculty/story/DataSets/NES2004.sav")
+
+head(nes)
+
+save(nes,file = "nes.Rdata")
+```
+
+##PART 3 - General social survey, student version. Save as file name gss.Rdata.
+
+Once viewing the file on the website, you see that this is an Excel file and we will need to use the read_Excel command to open this file.  I saved the file initially onto my computer and then brought it into my working directory to make it easier to work with and also help if the website ever changes and the file is not working anymore online.  I renamed the dataset as "gensocsur" and opened it up to verify it worked.  Then I saved the file as an R data set.
+
+```{r}
+## Web page: 
+##http://www.uta.edu/faculty/story/DataSets.htm
+
+gensocsur<-read_excel("GeneralSocialSurvey1996ExcelDataStudentVersion.xls",skip=0, col_names = TRUE)
+
+
+head(gensocsur)
+
+save(gensocsur,file = "gensocsur.Rdata")
+```
+
+##PART 4 - Replication file for “STATISTICAL DISCRIMINATION OR PREJUDICE? A LARGE SAMPLE FIELD EXPERIMENT”. Open up and save the mainData.csv file. Save it as maindata.RData. 
+
+We see after visiting the websitet that this is a csv or comma-separated variable file.  Since this is a form of delimited file that is separated by commas, we need to use the read_csv command to open the file.  Before doing that, I saved the file onto my desktop and then into my working directory for similar reasons as stated in question 3.  After making sure this loaded correctly, we save the file as an R data file.  
+
+```{r}
+main<-read_csv(file="mainData.csv")
+
+head(main)
+
+write_csv(main,path="mainData.Rdata")
+
+```
+
+##PART 5 - The Lalonde dataset, covering work experiences in the Panel Study of Income Dynamics (psid).
+
+This question required a little more than just pulling in and loading the data.  First, we see that this is a delimited file an we will again use the read.delim command to load the file.  Upone opening the file, we can see that that their are quite a few blank columns.  
+
+```{r}
+psid<-read.delim(file="http://users.nber.org/~rdehejia/data/psid_controls.txt",header = FALSE,sep = " ")
+
+head(psid)
+
+#To get rid of the blank columns we use the following command and input the columns in which there is no data and remove those columns. 
+psid2<-psid[ ,-(c(1,2,4,6,8,10,12,14,16,18,20))]
+
+#Next to clean this up, we will label the columns with the indicators on the website.  It would be helpful for anyone using this data to refer back to the above website to see what each column was referring to.  
+
+names(psid2)<-c("treatment_indicator","age","education","black","hispanic","married","nodegree","RE75","RE78","outcome")
+
+head(psid2)
+#Finally we save the data as an R data file. 
+save(psid2,file = "psid.Rdata")
+```
+
+
+

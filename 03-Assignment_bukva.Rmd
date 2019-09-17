@@ -1,0 +1,112 @@
+---
+title: "Assignment-03_Bukva"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(tidyverse)
+library(forcats)
+library(RColorBrewer)
+library(knitr)
+```
+
+#Assignment 03 - Use the attrition dataset to answer the following questions. 
+
+Today we will use RSudio to do the following tasks:
+
+    1. Create a graph that shows the distribution of monthly income
+    2. Create a graph that shows the average level of monthly income by field of education.
+    3. Create another graph that shows average level of monthly income by field of education and gender.
+    4. Create a graph that shows average levels of monthly income by field of education, gender and job level (scale  of 1-5, highest ranked employees are 5)
+
+First we will need to load the data from the Week 3 asyn called at dataset as well as packages for RStudio
+
+```{r}
+load("attrition.Rdata")
+```
+
+
+##Part 1 - Create a graph that shows the distribution of monthly income
+
+Using a histogram, I was able to show the distribution of the monthly income.  I thought the histogram looked better because it would show a continuous variable better across the range of incomes.  
+
+```{r}
+gg<-ggplot(at,aes(x=MonthlyIncome))
+gg<-gg+geom_histogram(binwidth = 1000,fill="green")
+gg<-gg+xlab("Monthly Income)")+ylab("Number of Employees")
+gg
+``` 
+
+##Part 2 - Create a graph that shows the average level of monthly income by field of education.
+
+First we make a prediction of the average income by education field and we name that inc_avg.  We then utilize a bar chart to show the average level of income by the employees particular field of education.  After using the summary data to plot on the bar graph, we find that individuals with a degree in Marketing make the most income followed closely by those with a Human Resources degree.
+
+```{r}
+at_sum<-at%>%
+  group_by(EducationField)%>%
+  summarize(inc_avg=mean(MonthlyIncome))
+
+at_sum
+```
+
+```{r}
+gg<-ggplot(at_sum,aes(x=fct_reorder(EducationField,inc_avg),y=inc_avg))
+gg<-gg+geom_bar(stat="identity",aes(fill=EducationField),position="dodge")
+gg1<-gg+xlab("Average monthly inclome")+ylab("Education Field")
+gg1
+```
+
+
+##Part 3 - Create another graph that shows average level of monthly income by field of education and gender.
+
+Again we will make a prediction of average income by both education level and gender this time.  We will then add a variable gender to the bar plot that we make.  In doing so we will see that men only outearn women with degrees in life sciences and every other field we see women outearning men.  
+
+```{r}
+
+at_sum1<-at%>%
+  group_by(EducationField,Gender)%>%
+  summarize(inc_avg=mean(MonthlyIncome))%>%
+  arrange(-inc_avg)
+
+at_sum1
+```
+
+```{r}
+gg<-ggplot(at_sum1,aes(x=fct_reorder(EducationField,inc_avg),y=inc_avg,color=Gender))
+gg<-gg+geom_bar(stat="identity",aes(fill=Gender),position="dodge")
+gg2<-gg+ylab("Average Monthy Income")+xlab("Education Field")
+gg2
+```
+
+##Part 4 - Create a graph that shows average levels of monthly income by field of education, gender and job level (scale  of 1-5, highest ranked employees are 5)
+
+Again we make a prediction.  This time we find average income when considering education field, gender, and job level.  Then using the facet command we will plot sub-bar plots to see the data separated, yet still grouped together on the same page.  Once doing so, we find that at the beginning and ending levels of jobs there is little deviation based on gender and education, yet in the middle ranges 3 & 4 we do see some variance due to gender and/or field of education. 
+
+```{r}
+
+at_sum2<-at%>%
+  group_by(EducationField,Gender,JobLevel)%>%
+  summarize(inc_avg=mean(MonthlyIncome))%>%
+  arrange(-inc_avg)
+
+at_sum2
+```
+
+```{r}
+gg<-ggplot(at_sum2,aes(x=reorder(EducationField,inc_avg),
+                      y=inc_avg,
+                      fill=Gender))
+## Bar plot, with unstacked (dodge)
+ gg<-gg+geom_bar(stat="identity",position="dodge")
+## Separate out by Job Level
+gg<-gg+facet_wrap(~JobLevel)
+gg<-gg+ylab("Average Income")+xlab("Education Field")
+## Change orientation to sideways
+gg<-gg+coord_flip()
+gg3<-gg+ggtitle("Average Monthly Income by Gender, Education Field, and Job Level")
+## Print
+gg3
+```
+
